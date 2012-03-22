@@ -1,4 +1,5 @@
 #!/usr/bin/python
+#Author - Aregee: rahul.nbg@gmail.com
 import sys
 import re
 import os.path
@@ -19,20 +20,7 @@ class DocsSample(object):
   """A DocsSample object demonstrates the Document List feed."""
 
   def __init__(self, email, password):
-    """Constructor for the DocsSample object.
-
-    Takes an email and password corresponding to a gmail account to
-    demonstrate the functionality of the Document List feed.
-
-    Args:
-      email: [string] The e-mail address of the account to use for the sample.
-      password: [string] The password corresponding to the account specified by
-          the email parameter.
-
-    Returns:
-      A DocsSample object used to run the sample demonstrating the
-      functionality of the Document List feed.
-    """
+    
     source = 'Document List Python Sample'
     self.gd_client = gdata.docs.service.DocsService()
     self.gd_client.ClientLogin(email, password, source=source)
@@ -57,14 +45,7 @@ class DocsSample(object):
                                 entry.resourceId.text)
 
   def _GetFileExtension(self, file_name):
-    """Returns the uppercase file extension for a file.
-
-    Args:
-      file_name: [string] The basename of a filename.
-
-    Returns:
-      A string containing the file extension of the file.
-    """
+  
     match = re.search('.*\.([a-zA-Z]{3,}$)', file_name)
     if match:
       return match.group(1).upper()
@@ -165,62 +146,9 @@ class DocsSample(object):
 
     self._PrintFeed(feed)
 
-  def _ListAclPermissions(self):
-    """Retrieves a list of a user's folders and displays them."""
-    resource_id = raw_input('Enter an resource id: ')
-    query = gdata.docs.service.DocumentAclQuery(resource_id)
-    print '\nListing document permissions:'
-    feed = self.gd_client.GetDocumentListAclFeed(query.ToUri())
-    for acl_entry in feed.entry:
-      print '%s - %s (%s)' % (acl_entry.role.value, acl_entry.scope.value,
-                              acl_entry.scope.type)
-
-  def _ModifyAclPermissions(self):
-    """Create or updates the ACL entry on an existing document."""
-    resource_id = raw_input('Enter an resource id: ')
-    email = raw_input('Enter an email address: ')
-    role_value = raw_input('Enter a permission (reader/writer/owner/remove): ')
-
-    uri = gdata.docs.service.DocumentAclQuery(resource_id).ToUri()
-    acl_feed = self.gd_client.GetDocumentListAclFeed(uri)
-
-    found_acl_entry = None
-    for acl_entry in acl_feed.entry:
-      if acl_entry.scope.value == email:
-        found_acl_entry = acl_entry
-        break
-
-    if found_acl_entry:
-      if role_value == 'remove':
-        # delete ACL entry
-        self.gd_client.Delete(found_acl_entry.GetEditLink().href)
-      else:
-        # update ACL entry
-        found_acl_entry.role.value = role_value
-        updated_entry = self.gd_client.Put(
-            found_acl_entry, found_acl_entry.GetEditLink().href,
-            converter=gdata.docs.DocumentListAclEntryFromString)
-    else:
-      scope = gdata.docs.Scope(value=email, type='user')
-      role = gdata.docs.Role(value=role_value)
-      acl_entry = gdata.docs.DocumentListAclEntry(scope=scope, role=role)
-      inserted_entry = self.gd_client.Post(
-        acl_entry, uri, converter=gdata.docs.DocumentListAclEntryFromString)
-
-    print '\nListing document permissions:'
-    acl_feed = self.gd_client.GetDocumentListAclFeed(uri)
-    for acl_entry in acl_feed.entry:
-      print '%s - %s (%s)' % (acl_entry.role.value, acl_entry.scope.value,
-                              acl_entry.scope.type)
-
+  
   def _FullTextSearch(self):
-    """Searches a user's documents for a text string.
-
-    Provides prompts to search a user's documents and displays the results
-    of such a search. The text_query parameter of the DocumentListQuery object
-    corresponds to the contents of the q parameter in the feed. Note that this
-    parameter searches the content of documents, not just their titles.
-    """
+    
     input = raw_input('Enter search term: ')
     query = gdata.docs.service.DocumentQuery(text_query=input)
     feed = self.gd_client.Query(query.ToUri())
@@ -233,9 +161,7 @@ class DocsSample(object):
            '2) Search your documents.\n'
            '3) Upload a document.\n'
            '4) Download a document.\n'
-           "5) List a document's permissions.\n"
-           "6) Add/change a document's permissions.\n"
-           '7) Exit.\n')
+           '5) Exit.\n')
 
   def _GetMenuChoice(self, max):
     """Retrieves the menu selection from the user.
@@ -276,10 +202,6 @@ class DocsSample(object):
         elif choice == 4:
           self._DownloadMenu()
         elif choice == 5:
-          self._ListAclPermissions()
-        elif choice == 6:
-          self._ModifyAclPermissions()
-        elif choice == 7:
           print '\nGoodbye.'
           return
     except KeyboardInterrupt:
